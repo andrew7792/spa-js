@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+
+<a is="spa-href" href="/qwerty">First</a>
+<a is="spa-href" href="/test">Second</a>
+<a is="spa-href" href="/">Main</a>
+
+<div class="content">
+
+</div>
+
+<script>
+
+    class EventEmitter {
+        constructor() {
+            this.events = {};
+        }
+
+        on(event, callback) {
+            if (!this.events[event]) {
+                this.events[event] = [];
+            }
+
+            this.events[event].push(callback);
+        }
+
+        dispatch(event, data) {
+            if (!this.events[event]) {
+                return false;
+            }
+
+            for(let callback of this.events[event]) {
+                callback({...data, type: event});
+            }
+        }
+
+        off(event, callback = null) {
+            if (!callback) {
+                // Отключить все event
+            } else {
+                // Отключить только callback
+            }
+        }
+
+        once(event, callback) {
+            // Должна добавить функцию на событие
+            // После первого выполнения должна удалить себя
+            let func = (e) => {
+                callback(e);
+                this.off(event, func);
+            };
+
+            this.on(event, func);
+        }
+    }
+
+    class BrowserHistory extends EventEmitter {
+        constructor() {
+            super();
+            window.addEventListener('popstate', () => {
+                this.update();
+            });
+        }
+
+        push(url) {
+            history.pushState({}, '', url);
+            this.dispatch('change', {url: location.pathname});
+        }
+
+        update() {
+            this.dispatch('change', {url: location.pathname});
+        }
+    }
+
+    const History = new BrowserHistory();
+
+
+    content = {
+        '/': "<h1>Hello</h1>",
+        '/test': "<textarea>Test</textarea>",
+        '/qwerty': ""
+    };
+
+    let div = document.querySelector('.content');
+
+    function load(url) {
+        let targetUrl = "/index";
+        if (url !== '/') {
+            targetUrl = url;
+        }
+        fetch(`/content${targetUrl}.html`).
+        then((e) => e.text()).
+        then((text) => {
+            content[url] = text;
+            if (location.pathname === url) {
+                div.innerHTML = text;
+            }
+        });
+    }
+
+    load('/');
+    load('/qwerty');
+    load('/test');
+
+    History.on('change', (e) => {
+        let inner = "<h1>Not found</h1>";
+        if (content[e.url]) {
+            inner = content[e.url];
+        }
+        div.innerHTML = inner;
+    });
+
+    History.update();
+
+    class SpaHref extends HTMLAnchorElement {
+        constructor() {
+            super();
+            this.addEventListener('click', (e) => {
+                e.preventDefault();
+                History.push(this.href);
+            });
+        }
+    }
+
+    customElements.define('spa-href', SpaHref, {extends: 'a'});
+
+
+</script>
+</body>
+</html>

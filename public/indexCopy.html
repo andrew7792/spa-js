@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+<h3>navigator</h3>
+<h3>history</h3>
+<h3>window</h3>
+<script>
+    navigator.geolocation.getCurrentPosition((e) => {
+        console.log(e);
+    });
+
+    /*let promise = navigator.mediaDevices.getUserMedia({ video: {width: 640, height: 420} });
+
+    promise.then((stream) => {
+        let video = document.createElement('video');
+        video.srcObject = stream;
+        video.onloadedmetadata = function(e) {
+            video.play();
+        };
+
+        document.body.appendChild(video);
+    });*/
+
+    qwerty = window.open('about:blank', 'Test', "width=200,height=200");
+
+    console.log(qwerty.document);
+    qwerty.document.write('2345678qwertyuio');
+
+    
+</script>
+</body>
+</html>
